@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 import '../../../core/networking/api_result.dart';
 import '../../../core/networking/enums_networking.dart';
 import '../../constants/strings_constants.dart';
+import '../../translations/tr_extension.dart';
 import '../custom_widgets/custom_button.dart';
 import '../custom_widgets/custom_text.dart';
 

@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-import 'package:get/get.dart';
+import 'package:thunder_template/helper/translations/tr_extension.dart';
 
 import 'storage_service.dart';
 
@@ -11,20 +11,22 @@ class LocalizationService {
   /// Languages the app supports (must match `MyLocal.keys`).
   static const supportedLocales = [Locale('en'), Locale('ar')];
 
-  static StorageService get _storage => Get.find<StorageService>();
-
   /// The saved language, or the device language when it is supported.
-  static Locale get locale {
-    final saved = _storage.getString(StorageKeys.languageCode);
-    if (saved != null) return Locale(saved);
-    final device = Get.deviceLocale;
-    final supported =
-        supportedLocales.any((l) => l.languageCode == device?.languageCode);
-    return supported ? Locale(device!.languageCode) : fallbackLocale;
+  static Locale savedLocale(StorageService storage) {
+    final saved = storage.getString(StorageKeys.languageCode);
+    final device = PlatformDispatcher.instance.locale.languageCode;
+    final code = saved ??
+        (supportedLocales.any((l) => l.languageCode == device)
+            ? device
+            : fallbackLocale.languageCode);
+    AppTranslations.languageCode = code;
+    return Locale(code);
   }
 
-  static Future<void> changeLocale(String languageCode) async {
-    await Get.updateLocale(Locale(languageCode));
-    await _storage.setString(StorageKeys.languageCode, languageCode);
+  static Future<Locale> changeLocale(
+      StorageService storage, String languageCode) async {
+    AppTranslations.languageCode = languageCode;
+    await storage.setString(StorageKeys.languageCode, languageCode);
+    return Locale(languageCode);
   }
 }

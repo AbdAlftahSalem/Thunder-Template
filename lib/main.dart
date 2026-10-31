@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
-import 'core/bindings/bindings_app.dart';
+import 'app/features/settings/bloc/settings_bloc.dart';
 import 'core/config/app_config.dart';
-import 'core/routing/app_routes.dart';
-import 'core/routing/routes.dart';
+import 'core/di/injection.dart';
+import 'core/routing/app_router.dart';
 import 'core/services/localization_service.dart';
-import 'core/services/storage_service.dart';
-import 'core/services/theme_service.dart';
 import 'core/theme/app_theme.dart';
-import 'helper/translations/local.dart';
+import 'helper/translations/tr_extension.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Get.putAsync(() => StorageService().init(), permanent: true);
+  await setupDependencies();
   runApp(const MyApp());
 }
 
@@ -22,18 +21,26 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
-      title: AppConfig.appName,
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.light,
-      darkTheme: AppTheme.dark,
-      themeMode: ThemeService.themeMode,
-      translations: MyLocal(),
-      locale: LocalizationService.locale,
-      fallbackLocale: LocalizationService.fallbackLocale,
-      initialBinding: BindingApp(),
-      initialRoute: Routes.HOME,
-      getPages: AppPages.routes,
+    return BlocProvider(
+      create: (_) => sl<SettingsBloc>(),
+      child: BlocConsumer<SettingsBloc, SettingsState>(
+        // Texts use `.tr`: rebuild every page when the language changes.
+        listenWhen: (previous, current) => previous.locale != current.locale,
+        listener: (context, _) => AppTranslations.refreshApp(context),
+        builder: (context, settings) {
+          return MaterialApp.router(
+            title: AppConfig.appName,
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.light,
+            darkTheme: AppTheme.dark,
+            themeMode: settings.themeMode,
+            locale: settings.locale,
+            supportedLocales: LocalizationService.supportedLocales,
+            localizationsDelegates: GlobalMaterialLocalizations.delegates,
+            routerConfig: AppRouter.router,
+          );
+        },
+      ),
     );
   }
 }

@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:get/get.dart';
 
 import '../../helper/constants/api_constants.dart';
+import '../di/injection.dart';
 import '../services/storage_service.dart';
 import 'api_result.dart';
 import 'enums_networking.dart';
@@ -27,8 +27,8 @@ class DioHelper {
       InterceptorsWrapper(
         onRequest: (options, handler) {
           // Send the saved token with every request.
-          if (Get.isRegistered<StorageService>()) {
-            final token = Get.find<StorageService>().token;
+          if (sl.isRegistered<StorageService>()) {
+            final token = sl<StorageService>().token;
             if (token != null &&
                 !options.headers.containsKey('Authorization')) {
               options.headers['Authorization'] = 'Bearer $token';

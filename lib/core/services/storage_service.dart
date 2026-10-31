@@ -1,4 +1,3 @@
-import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Keys saved in local storage.
@@ -8,9 +7,9 @@ abstract class StorageKeys {
   static const languageCode = 'language_code';
 }
 
-/// Local key-value storage (SharedPreferences). Registered in `main()`
-/// before the app starts, so it is always available with `Get.find`.
-class StorageService extends GetxService {
+/// Local key-value storage (SharedPreferences). Registered in
+/// `setupDependencies()` before the app starts: `sl<StorageService>()`.
+class StorageService {
   late SharedPreferences _prefs;
 
   Future<StorageService> init() async {
